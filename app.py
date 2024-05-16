@@ -20,7 +20,7 @@ st.title('YOLO Object Detection')
 
 # Afficher le formulaire de téléchargement de fichier
 uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
-camera_file = st.camera_input("Prendre une photo")
+camera_file = st.camera_input("Prendre une photo",key="camera",label_visibility="hidden")
 
 def process_image(image):
     # Convertir l'image en tableau numpy
