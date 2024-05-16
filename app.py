@@ -61,12 +61,20 @@ if uploaded_file is not None:
     st.image(img_np, channels="BGR")
     # Afficher le nombre total d'objets détectés et les types d'objets
     st.write(f"Nombre total d'objets détectés : {total_objects}")
-    st.write("Types d'objets détectés :")
+
+    # Compteur pour chaque type d'objet détecté
+    object_counts = {}
+
+    # Compter le nombre d'occurrences de chaque type d'objet détecté
     for result in results:
         boxes = result.boxes.xyxy.cpu().numpy()  # Les coordonnées des bounding boxes
-        scores = result.boxes.conf.cpu().numpy()  # Les scores de confiance
         classes = result.boxes.cls.cpu().numpy()  # Les classes prédites
         
-        for box, score, cls in zip(boxes, scores, classes):
+        for cls in classes:
             class_name = class_names[int(cls)]
-            st.write(f"- {class_name}: {score:.2f}")
+            object_counts[class_name] = object_counts.get(class_name, 0) + 1
+
+    # Afficher le nombre d'occurrences de chaque type d'objet détecté
+    st.write("Occurrences par type d'objet :")
+    for class_name, count in object_counts.items():
+        st.write(f"- {class_name} : {count}")
