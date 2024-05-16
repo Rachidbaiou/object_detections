@@ -63,9 +63,10 @@ if uploaded_file is not None:
     st.write(f"Nombre total d'objets détectés : {total_objects}")
     st.write("Types d'objets détectés :")
     for result in results:
-        classes = result.pred.cpu().numpy()  # Les classes prédites
-        scores = result.pred_conf.cpu().numpy()  # Les scores de confiance
+        boxes = result.boxes.xyxy.cpu().numpy()  # Les coordonnées des bounding boxes
+        scores = result.boxes.conf.cpu().numpy()  # Les scores de confiance
+        classes = result.boxes.cls.cpu().numpy()  # Les classes prédites
         
-        for cls, score in zip(classes, scores):
-            class_name = model.names[int(cls)]
+        for box, score, cls in zip(boxes, scores, classes):
+            class_name = class_names[int(cls)]
             st.write(f"- {class_name}: {score:.2f}")
