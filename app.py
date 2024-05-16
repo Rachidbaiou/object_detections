@@ -20,13 +20,11 @@ st.title('YOLO Object Detection')
 
 # Afficher le formulaire de téléchargement de fichier
 uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
+camera_file = st.camera_input("Prendre une photo")
 
-if uploaded_file is not None:
-    # Charger l'image depuis le fichier uploadé
-    img = Image.open(uploaded_file)
-    
+def process_image(image):
     # Convertir l'image en tableau numpy
-    img_np = np.array(img)
+    img_np = np.array(image)
     
     # Détecter les objets dans l'image
     results = model(img_np)
@@ -57,22 +55,43 @@ if uploaded_file is not None:
     total_objects_label = f"Total Objects Detected: {total_objects}"
     cv2.putText(img_np, total_objects_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     
-    # Afficher l'image annotée
-    st.image(img_np, channels="BGR")
-    # Afficher le nombre total d'objets détectés et les types d'objets
-    st.write(f"Nombre total d'objets détectés : {total_objects}")
-
     # Compteur pour chaque type d'objet détecté
     object_counts = {}
 
     # Compter le nombre d'occurrences de chaque type d'objet détecté
     for result in results:
-        boxes = result.boxes.xyxy.cpu().numpy()  # Les coordonnées des bounding boxes
         classes = result.boxes.cls.cpu().numpy()  # Les classes prédites
         
         for cls in classes:
             class_name = class_names[int(cls)]
             object_counts[class_name] = object_counts.get(class_name, 0) + 1
+
+    return img_np, total_objects, object_counts
+
+if uploaded_file is not None:
+    # Charger l'image depuis le fichier uploadé
+    img = Image.open(uploaded_file)
+    processed_img, total_objects, object_counts = process_image(img)
+    
+    # Afficher l'image annotée
+    st.image(processed_img, channels="BGR")
+    # Afficher le nombre total d'objets détectés et les types d'objets
+    st.write(f"Nombre total d'objets détectés : {total_objects}")
+
+    # Afficher le nombre d'occurrences de chaque type d'objet détecté
+    st.write("Occurrences par type d'objet :")
+    for class_name, count in object_counts.items():
+        st.write(f"- {class_name} : {count}")
+
+if camera_file is not None:
+    # Charger l'image depuis la caméra
+    img = Image.open(camera_file)
+    processed_img, total_objects, object_counts = process_image(img)
+    
+    # Afficher l'image annotée
+    st.image(processed_img, channels="BGR")
+    # Afficher le nombre total d'objets détectés et les types d'objets
+    st.write(f"Nombre total d'objets détectés : {total_objects}")
 
     # Afficher le nombre d'occurrences de chaque type d'objet détecté
     st.write("Occurrences par type d'objet :")
