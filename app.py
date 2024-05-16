@@ -9,25 +9,19 @@ import streamlit as st
 
 # Charger le modèle YOLO
 model = YOLO('yolov9c.pt')
-# Chemin du dossier temporaire pour stocker les images téléchargées
-UPLOAD_FOLDER = 'uploads'
 
-# Vérifiez si le dossier existe, sinon, créez-le
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+# Fonction pour capturer une image avec la caméra
+def capture_image():
+    cap = cv2.VideoCapture(0)  # Ouvrir la caméra
+    ret, frame = cap.read()  # Lire l'image de la caméra
+    cap.release()  # Libérer la ressource de la caméra
+    return frame
 
 st.title('YOLO Object Detection')
 
-# Afficher le formulaire de téléchargement de fichier
-uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    # Charger l'image depuis le fichier uploadé
-    img = Image.open(uploaded_file)
-    
-    # Convertir l'image en tableau numpy
-    img_np = np.array(img)
-    
+# Afficher les options pour télécharger une image ou prendre une photo avec la caméra
+option = st.radio("Choisissez une option:", ('Télécharger une image', 'Prendre une photo avec la caméra'))
+def process_image(img_np):
     # Détecter les objets dans l'image
     results = model(img_np)
     class_names = model.names
@@ -59,3 +53,21 @@ if uploaded_file is not None:
     
     # Afficher l'image annotée
     st.image(img_np, channels="BGR")
+if option == 'Télécharger une image':
+    # Afficher le formulaire de téléchargement de fichier
+    uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file is not None:
+        # Charger l'image depuis le fichier uploadé
+        img = Image.open(uploaded_file)
+        img_np = np.array(img)
+        process_image(img_np)
+
+elif option == 'Prendre une photo avec la caméra':
+    # Bouton pour prendre une photo avec la caméra
+    if st.button('Prendre une photo'):
+        # Capturer l'image avec la caméra
+        img = capture_image()
+        process_image(img)
+
+
