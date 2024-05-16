@@ -22,6 +22,9 @@ st.title('YOLO Object Detection')
 # Afficher les options pour télécharger une image ou prendre une photo avec la caméra
 option = st.radio("Choisissez une option:", ('Télécharger une image', 'Prendre une photo avec la caméra'))
 def process_image(img_np):
+    # Convertir l'image de BGR à RGB
+    img_rgb = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
+
     # Détecter les objets dans l'image
     results = model(img_np)
     class_names = model.names
@@ -42,17 +45,18 @@ def process_image(img_np):
             label = f"{class_names[int(cls)]}: {score:.2f}"  # Créer le label à afficher
             
             # Dessiner le rectangle
-            cv2.rectangle(img_np, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.rectangle(img_rgb, (x1, y1), (x2, y2), (0, 255, 0), 2)
             
             # Dessiner le label
-            cv2.putText(img_np, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+            cv2.putText(img_rgb, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
     
     # Ajouter le nombre total d'objets détectés sur l'image
     total_objects_label = f"Total Objects Detected: {total_objects}"
-    cv2.putText(img_np, total_objects_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    cv2.putText(img_rgb, total_objects_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     
     # Afficher l'image annotée
-    st.image(img_np, channels="BGR")
+    st.image(img_rgb, channels="RGB")
+
 if option == 'Télécharger une image':
     # Afficher le formulaire de téléchargement de fichier
     uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
