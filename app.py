@@ -67,4 +67,5 @@ if uploaded_file is not None:
         scores = result.pred_conf.cpu().numpy()  # Les scores de confiance
         
         for cls, score in zip(classes, scores):
-            st.write(f"- {class_names[int(cls)]}: {score:.2f}")
+            class_name = model.names[int(cls)]
+            st.write(f"- {class_name}: {score:.2f}")
