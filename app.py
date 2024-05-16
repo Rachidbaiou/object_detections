@@ -1,26 +1,13 @@
 import cv2
 import numpy as np
-import torch
-from ultralytics import YOLO
-import io
 from PIL import Image
-import os
 import streamlit as st
+from ultralytics import YOLO
 
 # Charger le modèle YOLO
-model = YOLO('yolov9c.pt')
+model = YOLO('yolov5s.pt')
 
-# Fonction pour capturer une image avec la caméra
-def capture_image():
-    cap = cv2.VideoCapture(0)  # Ouvrir la caméra
-    ret, frame = cap.read()  # Lire l'image de la caméra
-    cap.release()  # Libérer la ressource de la caméra
-    return frame
-
-st.title('YOLO Object Detection')
-
-# Afficher les options pour télécharger une image ou prendre une photo avec la caméra
-option = st.radio("Choisissez une option:", ('Télécharger une image', 'Prendre une photo avec la caméra'))
+# Fonction pour traiter l'image
 def process_image(img_np):
     # Convertir l'image de BGR à RGB
     img_rgb = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
@@ -28,34 +15,35 @@ def process_image(img_np):
     # Détecter les objets dans l'image
     results = model(img_np)
     class_names = model.names
-    
+
     # Initialiser le compteur d'objets
     total_objects = 0
-    
+
     # Dessiner les résultats sur l'image
-    for result in results:
-        boxes = result.boxes.xyxy.cpu().numpy()  # Les coordonnées des bounding boxes
-        scores = result.boxes.conf.cpu().numpy()  # Les scores de confiance
-        classes = result.boxes.cls.cpu().numpy()  # Les classes prédites
-        
-        total_objects += len(boxes)  # Compter les objets détectés
-        
-        for box, score, cls in zip(boxes, scores, classes):
+    for result in results.xyxy:
+        for *box, conf, cls in result:
             x1, y1, x2, y2 = map(int, box)  # Convertir les coordonnées en entiers
-            label = f"{class_names[int(cls)]}: {score:.2f}"  # Créer le label à afficher
-            
+            label = f"{class_names[int(cls)]}: {conf:.2f}"  # Créer le label à afficher
+
             # Dessiner le rectangle
             cv2.rectangle(img_rgb, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            
+
             # Dessiner le label
             cv2.putText(img_rgb, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-    
+
+            total_objects += 1
+
     # Ajouter le nombre total d'objets détectés sur l'image
     total_objects_label = f"Total Objects Detected: {total_objects}"
     cv2.putText(img_rgb, total_objects_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-    
+
     # Afficher l'image annotée
     st.image(img_rgb, channels="RGB")
+
+st.title('YOLO Object Detection')
+
+# Afficher les options pour télécharger une image ou prendre une photo avec la caméra
+option = st.radio("Choisissez une option:", ('Télécharger une image', 'Prendre une photo avec la caméra'))
 
 if option == 'Télécharger une image':
     # Afficher le formulaire de téléchargement de fichier
@@ -70,8 +58,7 @@ if option == 'Télécharger une image':
 elif option == 'Prendre une photo avec la caméra':
     # Bouton pour prendre une photo avec la caméra
     if st.button('Prendre une photo'):
-        # Capturer l'image avec la caméra
-        img = capture_image()
-        process_image(img)
-
-
+        # Utiliser st.camera_input() pour capturer une image depuis la caméra
+        img_data = st.image('Prendre une photo', channels='BGR')
+        img_np = np.array(img_data)
+        process_image(img_np)
