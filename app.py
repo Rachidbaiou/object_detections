@@ -18,26 +18,8 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 st.title('YOLO Object Detection')
 
-# Option pour télécharger une image
+# Afficher le formulaire de téléchargement de fichier
 uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
-
-# Option pour capturer une image depuis la caméra
-capture_image = st.button("Capturer une image")
-
-if capture_image:
-    # Utiliser OpenCV pour capturer une image depuis la caméra
-    cap = cv2.VideoCapture(0)
-    ret, frame = cap.read()
-    
-    if ret:
-        # Convertir l'image capturée en format PIL pour l'afficher dans Streamlit
-        img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        
-        # Afficher l'image capturée
-        st.image(img, channels="RGB")
-        
-        # Libérer la capture de la caméra
-        cap.release()
 
 if uploaded_file is not None:
     # Charger l'image depuis le fichier uploadé
@@ -77,3 +59,12 @@ if uploaded_file is not None:
     
     # Afficher l'image annotée
     st.image(img_np, channels="BGR")
+    # Afficher le nombre total d'objets détectés et les types d'objets
+    st.write(f"Nombre total d'objets détectés : {total_objects}")
+    st.write("Types d'objets détectés :")
+    for result in results:
+        classes = result.pred.cpu().numpy()  # Les classes prédites
+        scores = result.pred_conf.cpu().numpy()  # Les scores de confiance
+        
+        for cls, score in zip(classes, scores):
+            st.write(f"- {class_names[int(cls)]}: {score:.2f}")
