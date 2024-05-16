@@ -22,17 +22,27 @@ st.title('YOLO Object Detection')
 uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
 
 # Option pour capturer une image depuis la caméra
-captured_image = st.camera_input(label="Capturer une image", capture_width=640)
+capture_image = st.button("Capturer une image")
 
-if captured_image is not None:
-    # Convertir l'image capturée en format PIL pour le traitement
-    img = Image.fromarray(captured_image)
-elif uploaded_file is not None:
+if capture_image:
+    # Utiliser OpenCV pour capturer une image depuis la caméra
+    cap = cv2.VideoCapture(0)
+    ret, frame = cap.read()
+    
+    if ret:
+        # Convertir l'image capturée en format PIL pour l'afficher dans Streamlit
+        img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        
+        # Afficher l'image capturée
+        st.image(img, channels="RGB")
+        
+        # Libérer la capture de la caméra
+        cap.release()
+
+if uploaded_file is not None:
     # Charger l'image depuis le fichier uploadé
     img = Image.open(uploaded_file)
-
-# Si une image est disponible
-if 'img' in locals():
+    
     # Convertir l'image en tableau numpy
     img_np = np.array(img)
     
