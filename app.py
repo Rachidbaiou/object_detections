@@ -73,7 +73,7 @@ def process_image(image):
 
     # Ajouter le nombre total d'objets détectés sur l'image
     total_objects_label = f"Total Bottles Detected: {total_objects}"
-    cv2.putText(img_np, total_objects_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    #cv2.putText(img_np, total_objects_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     
     return img_np, total_objects, object_counts
 
@@ -84,13 +84,17 @@ if uploaded_file is not None:
     
     # Afficher l'image annotée
     st.image(processed_img, channels="BGR")
-    # Afficher le nombre total d'objets détectés et les types d'objets
-    st.write(f"Nombre total de bouteilles détectées : {total_objects}")
+   
+    if total_objects > 0:
+        st.write(f"Nombre total de bouteilles détectées : {total_objects}")
 
-    # Afficher le nombre d'occurrences de chaque type d'objet détecté
-    st.write("Occurrences par type d'objet :")
-    for class_name, count in object_counts.items():
-        st.write(f"- {class_name} : {count}")
+        # Afficher le nombre d'occurrences de chaque type d'objet détecté
+        st.write("Occurrences par type d'objet :")
+        for class_name, count in object_counts.items():
+            st.write(f"- {class_name} : {count}")
+    else:
+        st.write("Aucune bouteille détectée")
+    
 
 if camera_file is not None:
     # Charger l'image depuis la caméra
@@ -99,10 +103,15 @@ if camera_file is not None:
     
     # Afficher l'image annotée
     st.image(processed_img, channels="BGR")
-    # Afficher le nombre total d'objets détectés et les types d'objets
-    st.write(f"Nombre total de bouteilles détectées : {total_objects}")
+    
 
-    # Afficher le nombre d'occurrences de chaque type d'objet détecté
-    st.write("Occurrences par type d'objet :")
-    for class_name, count in object_counts.items():
-        st.write(f"- {class_name} : {count}")
+    if total_objects > 0:
+        st.write(f"Nombre total de bouteilles détectées : {total_objects}")
+
+        # Afficher le nombre d'occurrences de chaque type d'objet détecté
+        st.write("Occurrences par type d'objet :")
+        for class_name, count in object_counts.items():
+            st.write(f"- {class_name} : {count}")
+    else:
+        st.write("Aucune bouteille détectée")
+    
