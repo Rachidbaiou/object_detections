@@ -91,9 +91,7 @@ if uploaded_file is not None:
     st.write(f"Nombre total de bouteilles détectées : {total_objects}")
 
     # Afficher le nombre d'occurrences de chaque type d'objet détecté
-    st.write("Occurrences par type d'objet :")
-    for class_name, count in object_counts.items():
-        st.write(f"- {class_name} : {count}")
+   
 
 if camera_file is not None:
     # Charger l'image depuis la caméra
@@ -106,6 +104,4 @@ if camera_file is not None:
     st.write(f"Nombre total de bouteilles détectées : {total_objects}")
 
     # Afficher le nombre d'occurrences de chaque type d'objet détecté
-    st.write("Occurrences par type d'objet :")
-    for class_name, count in object_counts.items():
-        st.write(f"- {class_name} : {count}")
+   
