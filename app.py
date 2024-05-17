@@ -17,7 +17,7 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-st.title('detection de bouteilles')
+st.title('Detection de bouteilles dans un pack :')
 
 # Afficher le formulaire de téléchargement de fichier
 uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
@@ -42,7 +42,7 @@ def process_image(image):
             break
 
     if target_class_id is None:
-        st.write("Classe cible 'bottle' non trouvée dans le modèle.")
+        st.write("Aucune bouteille n'est trouvee dans l'image.")
         return img_np, 0, {}
 
     # Initialiser le compteur d'objets
