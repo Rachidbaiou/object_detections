@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
-import torch
 from ultralytics import YOLO
-import io
 from PIL import Image
 import os
 import streamlit as st
@@ -17,7 +15,7 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-st.title('Detection de bouteilles dans un pack :')
+st.title('YOLO Object Detection')
 
 # Afficher le formulaire de téléchargement de fichier
 uploaded_file = st.file_uploader("Télécharger une image", type=["jpg", "jpeg", "png"])
@@ -36,13 +34,13 @@ def process_image(image):
     target_class_id = None
 
     # Trouver l'ID de la classe cible
-    for idx, class_name in enumerate(class_names):
+    for class_id, class_name in class_names.items():
         if class_name == target_class:
-            target_class_id = idx
+            target_class_id = class_id
             break
 
     if target_class_id is None:
-        st.write("Aucune bouteille n'est trouvee dans l'image.")
+        st.write(f"Classe cible '{target_class}' non trouvée dans le modèle.")
         return img_np, 0, {}
 
     # Initialiser le compteur d'objets
@@ -59,7 +57,6 @@ def process_image(image):
         
         for box, score, cls in zip(boxes, scores, classes):
             if int(cls) == target_class_id:
-                cv2.putText(int(cls))
                 total_objects += 1
                 x1, y1, x2, y2 = map(int, box)  # Convertir les coordonnées en entiers
                 label = f"{class_names[int(cls)]}: {score:.2f}"  # Créer le label à afficher
@@ -91,7 +88,9 @@ if uploaded_file is not None:
     st.write(f"Nombre total de bouteilles détectées : {total_objects}")
 
     # Afficher le nombre d'occurrences de chaque type d'objet détecté
-   
+    st.write("Occurrences par type d'objet :")
+    for class_name, count in object_counts.items():
+        st.write(f"- {class_name} : {count}")
 
 if camera_file is not None:
     # Charger l'image depuis la caméra
@@ -104,4 +103,6 @@ if camera_file is not None:
     st.write(f"Nombre total de bouteilles détectées : {total_objects}")
 
     # Afficher le nombre d'occurrences de chaque type d'objet détecté
-   
+    st.write("Occurrences par type d'objet :")
+    for class_name, count in object_counts.items():
+        st.write(f"- {class_name} : {count}")
